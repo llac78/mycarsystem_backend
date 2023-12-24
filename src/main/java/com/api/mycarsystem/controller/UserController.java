@@ -1,12 +1,15 @@
 package com.api.mycarsystem.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,51 +23,68 @@ import com.api.mycarsystem.exception.ResourceNotFoundException;
 import com.api.mycarsystem.model.User;
 import com.api.mycarsystem.repository.UserRepository;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api")
 public class UserController {
 	
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
 	
 	@GetMapping("/users")
 	public List<User> getAllUsers(){
-		return userRepository.findAll();
+		List<User> lista = userRepository.findAll();
+		for (User user : lista) {
+			System.out.println(user.toString());
+		}
+		return lista;
 	}
 	
 	//TODO validações
 	@PostMapping("/users") 
 	public User createUser(@Validated @RequestBody User user) {
+		
         return userRepository.save(user);
     }
 	
 	@GetMapping("/users/{id}")
-	public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.map(response -> ResponseEntity.ok().body(response)).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	public ResponseEntity<User> getUserById(@PathVariable Long id) throws ResourceNotFoundException {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not exist with id :" + id));
+        return ResponseEntity.ok(user);
     }
 	
 	@DeleteMapping("/users/{id}")
-	public ResponseEntity<User> deleteUserById(@PathVariable Long id) {
-		userRepository.deleteById(id);
-		return ResponseEntity.ok().build();
-    }
-
-	@PostMapping("/users/{id}") 
-	public User updateUser(@Validated @RequestBody User user) {
-        return userRepository.save(user);
-    }
-
-	@PutMapping("/users/{id}")
-    public ResponseEntity < User > updateUser(@PathVariable(value = "id") Long userId,
-        @Validated @RequestBody User userDetails) throws ResourceNotFoundException {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
-
-        user.setFirstName(userDetails.getFirstName());
-        user.setLastName(userDetails.getLastName());
-        final User updatedUser = userRepository.save(user);
-        return ResponseEntity.ok(updatedUser);
-    }
+	public ResponseEntity<Map<String, Boolean>> deleteUserById(@PathVariable Long id) throws ResourceNotFoundException {
 	
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not exist with id :" + id));
+		
+		userRepository.delete(user);
+		
+		Map<String, Boolean> response = new HashMap<>();
+		response.put("deleted", Boolean.TRUE);
+		
+		return ResponseEntity.ok(response);
+    }
+
+	@PutMapping("/users/{id}") 
+	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userData) throws ResourceNotFoundException {
+		
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not exist with id :" + id));
+		
+		user.setFirstName(userData.getFirstName());
+		user.setLastName(userData.getLastName());
+		user.setBirthday(userData.getBirthday());
+		user.setEmail(userData.getEmail());
+		user.setLogin(userData.getLogin());
+		user.setPassword(userData.getPassword());
+		user.setPhone(userData.getPhone());
+		
+		userRepository.save(user);
+		
+        return ResponseEntity.ok(user);
+    }
+
 }

@@ -1,14 +1,13 @@
 package com.api.mycarsystem.model;
 
 import java.util.Date;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,19 +20,20 @@ public class User {
 	private String firstName; 
 	private String lastName;
 	private String email;
+	@JsonFormat(pattern="dd/MM/yyyy")
 	private Date birthday;
 	private String login;
 	private String password;
 	private String phone;
 	
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "carId", targetEntity = Car.class)
-	private List<Car> cars;
+//	@OneToMany(fetch = FetchType.EAGER, mappedBy = "carId", targetEntity = Car.class)
+//	private List<Car> cars;
 	
 	public User() {
 	}
 	
 	public User(Long id, String firstName, String lastName, String email, Date birthday, String login, String password,
-			String phone, List<Car> cars) {
+			String phone) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -43,7 +43,7 @@ public class User {
 		this.login = login;
 		this.password = password;
 		this.phone = phone;
-		this.cars = cars;
+//		this.cars = cars;
 	}
 	
 	public Long getId() {
@@ -96,10 +96,16 @@ public class User {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	public List<Car> getCars() {
-		return cars;
-	}
-	public void setCars(List<Car> cars) {
-		this.cars = cars;
+//	public List<Car> getCars() {
+//		return cars;
+//	}
+//	public void setCars(List<Car> cars) {
+//		this.cars = cars;
+//	}
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "ID: " + id + " - Nome: " + firstName;
 	}
 }
