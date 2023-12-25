@@ -20,7 +20,7 @@ public class User {
 	private String firstName; 
 	private String lastName;
 	private String email;
-	@JsonFormat(pattern="dd/MM/yyyy")
+	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
 	private Date birthday;
 	private String login;
 	private String password;
